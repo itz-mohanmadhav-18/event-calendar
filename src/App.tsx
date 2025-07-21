@@ -13,6 +13,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { EventCard } from './components/events/EventCard';
 import { useEvents } from './hooks/useEvents';
 import { useDragDrop } from './hooks/useDragDrop';
+import { formatDate } from './utils/dateUtils';
 
 {/* Main app with routing and drag-and-drop functionality */}
 function App() {
@@ -27,14 +28,13 @@ function App() {
 
   const handleEventMove = async (eventId: string, newDate: Date) => {
     try {
-      const { formatDate } = await import('./utils/dateUtils');
       await updateEvent(eventId, { date: formatDate(newDate) });
-    } catch (error) {
+    } catch {
       // Silently fail - drag operation will revert
     }
   };
 
-  const basename = import.meta.env.BASE_URL.slice(0, -1);
+  const basename = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.slice(0, -1);
 
   return (
     <BrowserRouter basename={basename}>
