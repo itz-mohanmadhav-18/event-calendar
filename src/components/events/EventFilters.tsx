@@ -1,3 +1,4 @@
+{/* This is the category filter. I used a select dropdown so you can pick which category to filter by. I just put all the categories in an array. */}
 import React from 'react';
 import {
   Select,

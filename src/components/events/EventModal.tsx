@@ -7,14 +7,15 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { EventForm } from './EventForm';
-import type { Event } from '@/types/event';
+import type { Event, CreateEventData } from '@/types/event';
 
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
   event?: Event;
+  selectedDate?: Date | null;
   title?: string;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: CreateEventData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
 }
@@ -23,14 +24,18 @@ export const EventModal: React.FC<EventModalProps> = ({
   isOpen,
   onClose,
   event,
+  selectedDate,
   title,
   onSubmit,
   onDelete,
   isSubmitting,
 }) => {
+  console.log('EventModal render - isOpen:', isOpen, 'event:', event?.title);
+  console.log('EventModal render - isOpen:', isOpen, 'event:', event?.title);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title || (event ? 'Edit Event' : 'New Event')}</DialogTitle>
           <DialogDescription>
@@ -41,6 +46,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         </DialogHeader>
         <EventForm
           event={event}
+          selectedDate={selectedDate}
           onSubmit={onSubmit}
           onDelete={onDelete}
           isSubmitting={isSubmitting}

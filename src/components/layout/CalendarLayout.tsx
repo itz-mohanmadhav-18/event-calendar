@@ -2,15 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { CalendarHeader } from '../calendar/CalendarHeader';
 import { CalendarViewSwitcher } from '../calendar/CalendarViewSwitcher';
-import { useCalendar } from '@/hooks/useCalendar';
-import { useEvents } from '@/hooks/useEvents';
+import { useCalendarContext } from '@/hooks/useCalendarContext';
 
 interface CalendarLayoutProps {
   children: React.ReactNode;
 }
 
 export const CalendarLayout: React.FC<CalendarLayoutProps> = ({ children }) => {
-  const { events } = useEvents();
   const {
     currentDate,
     viewMode,
@@ -18,7 +16,7 @@ export const CalendarLayout: React.FC<CalendarLayoutProps> = ({ children }) => {
     goToNextMonth,
     goToPreviousMonth,
     goToToday
-  } = useCalendar(events);
+  } = useCalendarContext();
 
   const handleNavigation = (direction: 'next' | 'previous' | 'today') => {
     switch (direction) {

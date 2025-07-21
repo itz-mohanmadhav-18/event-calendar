@@ -1,7 +1,6 @@
 import React from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import { useCalendar } from '@/hooks/useCalendar';
-import { useEvents } from '@/hooks/useEvents';
+import { useCalendarContext } from '@/hooks/useCalendarContext';
 
 interface MiniCalendarProps {
   onDateSelect?: (date: Date) => void;
@@ -10,8 +9,7 @@ interface MiniCalendarProps {
 export const MiniCalendar: React.FC<MiniCalendarProps> = ({
   onDateSelect,
 }) => {
-  const { events } = useEvents();
-  const { selectedDate, setSelectedDate } = useCalendar(events);
+  const { selectedDate, setSelectedDate } = useCalendarContext();
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {

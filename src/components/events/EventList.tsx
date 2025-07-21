@@ -1,4 +1,6 @@
+{/* This is the event list. It groups events by date and shows them in cards. I used a reduce to group them because I saw it on Stack Overflow and it seemed to work. */}
 import React from 'react';
+import { useDroppable } from '@dnd-kit/core';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -13,7 +15,53 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventFilters } from '@/hooks/useEventFilters';
 import { Plus } from 'lucide-react';
 
-export const EventList: React.FC = () => {
+
+interface EventListProps {
+  onEventClick?: (event: import('@/types/event').Event) => void;
+}
+
+
+const EventDateGroup: React.FC<{
+  date: string;
+  events: import('@/types/event').Event[];
+  onEventClick: (event: import('@/types/event').Event) => void;
+}> = ({ date, events, onEventClick }) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `calendar-cell-${date}`,
+    data: { date },
+  });
+  return (
+    <Card key={date} ref={setNodeRef} className={isOver ? 'ring-2 ring-primary' : ''}>
+      <CardHeader>
+        <CardTitle className="text-lg">
+          {new Date(date).toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric' 
+          })}
+        </CardTitle>
+        <CardDescription>
+          {events.length} event{events.length !== 1 && 's'}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {events.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              variant="detailed"
+              onClick={() => onEventClick(event)}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export const EventList: React.FC<EventListProps> = ({ onEventClick }) => {
   const navigate = useNavigate();
   const { events, loading } = useEvents();
   const { filteredEvents, searchQuery } = useEventFilters(events);
@@ -33,8 +81,12 @@ export const EventList: React.FC = () => {
     new Date(a).getTime() - new Date(b).getTime()
   );
 
-  const handleEventClick = (eventId: string) => {
-    navigate(`/events/${eventId}/edit`);
+  const handleEventClick = (event: import('@/types/event').Event) => {
+    if (onEventClick) {
+      onEventClick(event);
+    } else {
+      navigate(`/events/${event.id}/edit`);
+    }
   };
 
   if (loading) {
@@ -63,33 +115,12 @@ export const EventList: React.FC = () => {
         </Card>
       ) : (
         sortedDates.map((date) => (
-          <Card key={date}>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                {new Date(date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric', 
-                  year: 'numeric' 
-                })}
-              </CardTitle>
-              <CardDescription>
-                {groupedEvents[date].length} event{groupedEvents[date].length !== 1 && 's'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {groupedEvents[date].map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    variant="detailed"
-                    onClick={() => handleEventClick(event.id)}
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <EventDateGroup
+            key={date}
+            date={date}
+            events={groupedEvents[date]}
+            onEventClick={handleEventClick}
+          />
         ))
       )}
     </div>

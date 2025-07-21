@@ -9,17 +9,49 @@ import { TopNavbar } from './TopNavbar';
 import { Sidebar } from './Sidebar';
 import { MiniCalendar } from '../calendar/MiniCalendar';
 import { Plus } from 'lucide-react';
+import { formatDate } from '@/utils/dateUtils';
 import type { Event, CreateEventData, UpdateEventData } from '@/types/event';
+
+{/* Create a context to pass down the calendar event handlers */}
+export const CalendarActionContext = React.createContext<{
+  onDateClick?: (date: Date) => void;
+  onEventClick?: (event: Event) => void;
+}>({});
 
 export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { createEvent, updateEvent, deleteEvent } = useEvents();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
+  const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
+
+  const handleDateClick = React.useCallback((date: Date) => {
+    setSelectedDate(date);
+    setSelectedEvent(null);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleEventClick = React.useCallback((event: Event) => {
+    setSelectedEvent(event);
+    setSelectedDate(null);
+    setIsModalOpen(true);
+  }, []);
+
+  {/* Memoize the context value to prevent unnecessary re-renders */}
+  const contextValue = React.useMemo(() => ({
+    onDateClick: handleDateClick,
+    onEventClick: handleEventClick
+  }), [handleDateClick, handleEventClick]);
 
   const handleCreateEvent = async (eventData: CreateEventData) => {
     try {
-      await createEvent(eventData);
+      // If a date was clicked, use that date
+      const finalEventData = selectedDate 
+        ? { ...eventData, date: formatDate(selectedDate) }
+        : eventData;
+      
+      await createEvent(finalEventData);
       setIsModalOpen(false);
+      setSelectedDate(null);
     } catch (error) {
       console.error('Failed to create event:', error);
     }
@@ -53,10 +85,10 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
     <>
       <TopNavbar />
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar */}
-            <div className="lg:col-span-1 space-y-4">
+        <div className="container mx-auto px-4 py-2 md:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
+            {/* Sidebar - Hidden on mobile, shown in collapsed view */}
+            <div className="hidden lg:block lg:col-span-1 space-y-4">
               <Sidebar />
               
               <Card>
@@ -99,9 +131,32 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
               </Card>
             </div>
 
+            {/* Mobile Menu Button - Show on small screens */}
+            <div className="lg:hidden mb-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => {
+                        setSelectedEvent(null);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Event
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Main Content */}
             <div className="lg:col-span-3">
-              {children}
+              <CalendarActionContext.Provider value={contextValue}>
+                {children}
+              </CalendarActionContext.Provider>
             </div>
           </div>
         </div>
@@ -111,8 +166,10 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
           onClose={() => {
             setIsModalOpen(false);
             setSelectedEvent(null);
+            setSelectedDate(null);
           }}
           event={selectedEvent || undefined}
+          selectedDate={selectedDate}
           onSubmit={selectedEvent ? handleUpdateEvent : handleCreateEvent}
           onDelete={selectedEvent ? handleDeleteEvent : undefined}
           isSubmitting={false}

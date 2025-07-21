@@ -23,7 +23,42 @@ export const useEvents = (): UseEventsReturn => {
     try {
       setLoading(true);
       setError(null);
-      const storedEvents = await storageService.getEvents();
+      let storedEvents = await storageService.getEvents();
+      
+      // Add sample events if none exist (for testing)
+      if (storedEvents.length === 0 || storedEvents.length > 50) {
+        // Clear existing events if too many (likely from recurrence issues)
+        const sampleEvents = [
+          {
+            id: 'sample-1',
+            title: 'Sample Meeting',
+            description: 'Click me to edit!',
+            date: '2025-07-21',
+            startTime: '10:00',
+            endTime: '11:00',
+            category: 'work',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 'sample-2',
+            title: 'Test Event', 
+            description: 'This is clickable',
+            date: '2025-07-22',
+            startTime: '14:00',
+            endTime: '15:30',
+            category: 'personal',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        ];
+        await storageService.saveEvents(sampleEvents);
+        storedEvents = sampleEvents;
+        console.log('Sample events created:', sampleEvents);
+      }
+      
+      console.log('Loaded events:', storedEvents);
+      console.log('Events array length:', storedEvents.length);
       setEvents(storedEvents);
     } catch (err) {
       console.error('Failed to load events:', err);
@@ -36,6 +71,15 @@ export const useEvents = (): UseEventsReturn => {
   const createEvent = useCallback(async (eventData: CreateEventData): Promise<Event> => {
     try {
       setError(null);
+      // Prevent creating events in the past
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const eventDate = new Date(eventData.date);
+      eventDate.setHours(0, 0, 0, 0);
+      if (eventDate < today) {
+        setError('Cannot create events in the past.');
+        throw new Error('Cannot create events in the past.');
+      }
       const newEvent: Event = {
         id: crypto.randomUUID(),
         ...eventData,

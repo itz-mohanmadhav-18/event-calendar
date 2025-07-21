@@ -47,6 +47,7 @@ interface RecurrenceOptionsProps {
   }>;
 }
 
+// This is for setting up recurring events. I don't fully understand all the options but it works for daily/weekly/monthly. I just followed what I found online.
 export const RecurrenceOptions: React.FC<RecurrenceOptionsProps> = ({
   form,
 }) => {

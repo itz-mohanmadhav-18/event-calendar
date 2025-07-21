@@ -1,8 +1,10 @@
+{/* This is the day view. It shows all the events for a single day. I split all-day and timed events because that's what Google Calendar does. I thought it would be easier to see them this way. I just filter the events and then sort them if they have a time. */}
 import React from 'react';
-import { useCalendar } from '@/hooks/useCalendar';
+import { useCalendarContext } from '@/hooks/useCalendarContext';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '../events/EventCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CalendarActionContext } from '@/components/layout/RootLayout';
 import { format } from 'date-fns';
 import type { Event } from '@/types/event';
 
@@ -14,7 +16,11 @@ export const DayView: React.FC<DayViewProps> = ({
   onEventClick,
 }) => {
   const { events } = useEvents();
-  const { currentDate } = useCalendar(events);
+  const { currentDate } = useCalendarContext();
+  const contextHandlers = React.useContext(CalendarActionContext);
+
+  // Use context handlers if provided, otherwise use props
+  const finalOnEventClick = contextHandlers.onEventClick || onEventClick;
 
   const currentDateString = format(currentDate, 'yyyy-MM-dd');
   const dayEvents = events.filter(event => event.date === currentDateString);
@@ -32,8 +38,8 @@ export const DayView: React.FC<DayViewProps> = ({
   });
 
   const handleEventClick = (event: Event) => {
-    if (onEventClick) {
-      onEventClick(event);
+    if (finalOnEventClick) {
+      finalOnEventClick(event);
     }
   };
 

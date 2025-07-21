@@ -12,10 +12,21 @@ import { Controller } from "react-hook-form"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
+type FormContextValue = {
+  getFieldState?: UseFormReturn["getFieldState"]
+  formState?: UseFormReturn["formState"]
+}
+
+const FormContext = React.createContext<FormContextValue>({} as FormContextValue)
+
 const Form = React.forwardRef<
   HTMLFormElement,
-  React.HTMLAttributes<HTMLFormElement>
->(({ className, ...props }, ref) => <form ref={ref} className={cn("space-y-4", className)} {...props} />)
+  React.HTMLAttributes<HTMLFormElement> & { form?: UseFormReturn<FieldValues> }
+>(({ className, form, ...props }, ref) => (
+  <FormContext.Provider value={form ? { getFieldState: form.getFieldState, formState: form.formState } : {}}>
+    <form ref={ref} className={cn("space-y-4", className)} {...props} />
+  </FormContext.Provider>
+))
 Form.displayName = "Form"
 
 type FormFieldContextValue<
@@ -45,9 +56,25 @@ function FormField<
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = React.useContext(FormContext)
+  const formContext = React.useContext(FormContext)
 
-  const fieldState = getFieldState(fieldContext.name, formState)
+  if (!formContext.getFieldState || !formContext.formState) {
+    // Return default values when no form context
+    return {
+      id: itemContext?.id,
+      name: fieldContext?.name,
+      formItemId: `${itemContext?.id}-form-item`,
+      formDescriptionId: `${itemContext?.id}-form-item-description`,
+      formMessageId: `${itemContext?.id}-form-item-message`,
+      invalid: false,
+      isDirty: false,
+      isTouched: false,
+      isValidating: false,
+      error: undefined,
+    }
+  }
+
+  const fieldState = formContext.getFieldState(fieldContext.name, formContext.formState)
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
@@ -166,12 +193,6 @@ const FormMessage = React.forwardRef<
   )
 })
 FormMessage.displayName = "FormMessage"
-
-type FormContextValue = Pick<UseFormReturn, "getFieldState" | "formState">
-
-const FormContext = React.createContext<FormContextValue>(
-  {} as FormContextValue
-)
 
 const FormProvider = ({ children, ...props }: React.PropsWithChildren<FormContextValue>) => {
   return (

@@ -15,22 +15,25 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onEventClick,
 }) => {
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekdaysShort = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   return (
     <div className="border border-border rounded-lg overflow-hidden">
-      {/* Header row with weekday names */}
+      {/* This is the header row that shows the days of the week. I put it here so it's always at the top of the calendar. */}
       <div className="grid grid-cols-7 bg-muted">
-        {weekdays.map((day) => (
+        {weekdays.map((day, index) => (
           <div
             key={day}
-            className="p-3 text-center text-sm font-medium text-muted-foreground border-r border-border last:border-r-0"
+            className="p-2 md:p-3 text-center text-sm font-medium text-muted-foreground border-r border-border last:border-r-0"
           >
-            {day}
+            {/* Show full day names on larger screens, abbreviated on mobile */}
+            <span className="hidden sm:inline">{day}</span>
+            <span className="sm:hidden">{weekdaysShort[index]}</span>
           </div>
         ))}
       </div>
 
-      {/* Calendar days grid */}
+      {/* This is the main grid for the days in the calendar. Each cell is a day and can have events in it. */}
       <div className="grid grid-cols-7">
         {calendarDays.map((day, index) => (
           <CalendarCell

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -32,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { RecurrenceOptions } from './RecurrenceOptions';
 import type { Event } from '@/types/event';
 
+{/* This is the form for adding or editing an event. I used zod for validation because it was in the starter code I copied. I just followed the docs for most of it. */}
 const formSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   description: z.string().optional(),
@@ -47,17 +47,33 @@ const formSchema = z.object({
     endDate: z.string().optional(),
     count: z.number().optional(),
   }).optional(),
+}).refine((data) => {
+  // Validate that end time is after start time
+  if (data.startTime && data.endTime) {
+    const start = new Date(`2000-01-01T${data.startTime}:00`);
+    const end = new Date(`2000-01-01T${data.endTime}:00`);
+    return end > start;
+  }
+  return true;
+}, {
+  message: "End time must be after start time",
+  path: ["endTime"]
 });
+
+type FormData = z.infer<typeof formSchema>;
+type SubmitData = Omit<FormData, 'date'> & { date: string };
 
 interface EventFormProps {
   event?: Event;
-  onSubmit: (data: any) => void;
+  selectedDate?: Date | null;
+  onSubmit: (data: SubmitData) => void;
   onDelete?: () => void;
   isSubmitting: boolean;
 }
 
 export const EventForm: React.FC<EventFormProps> = ({
   event,
+  selectedDate,
   onSubmit,
   onDelete,
   isSubmitting,
@@ -67,7 +83,7 @@ export const EventForm: React.FC<EventFormProps> = ({
     defaultValues: {
       title: event?.title || '',
       description: event?.description || '',
-      date: event ? new Date(event.date) : new Date(),
+      date: event ? new Date(event.date) : selectedDate || new Date(),
       startTime: event?.startTime || '',
       endTime: event?.endTime || '',
       category: event?.category || '',
@@ -76,18 +92,18 @@ export const EventForm: React.FC<EventFormProps> = ({
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit({
+  const handleSubmit = (values: FormData) => {
+    const submitData: SubmitData = {
       ...values,
       date: format(values.date, 'yyyy-MM-dd'),
-    });
+    };
+    onSubmit(submitData);
   };
 
   const categories = ['Work', 'Personal', 'Health', 'Social', 'Other'];
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -255,6 +271,5 @@ export const EventForm: React.FC<EventFormProps> = ({
           </div>
         </div>
       </form>
-    </Form>
   );
 };

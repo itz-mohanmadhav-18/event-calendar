@@ -4,6 +4,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { formatTime } from '@/utils/dateUtils';
 import { Button } from '@/components/ui/button';
 
+// This shows the next 5 upcoming events. I used a useMemo to only calculate it when events change. I just filter and sort the events and then slice the first 5.
 export const UpcomingEvents: React.FC = () => {
   const navigate = useNavigate();
   const { events, loading } = useEvents();

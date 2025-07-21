@@ -35,8 +35,12 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
   };
 
   const handleEventClick = (event: Event) => {
+    console.log('CalendarCell handleEventClick called with:', event.title);
     if (onEventClick) {
+      console.log('CalendarCell calling onEventClick');
       onEventClick(event);
+    } else {
+      console.log('CalendarCell: no onEventClick handler provided');
     }
   };
 
@@ -44,7 +48,7 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
     <div
       ref={setNodeRef}
       className={cn(
-        'min-h-24 border border-border p-2 transition-colors cursor-pointer',
+        'min-h-16 sm:min-h-20 md:min-h-24 border border-border p-1 sm:p-2 transition-colors cursor-pointer',
         {
           'bg-muted/50 text-muted-foreground': !isCurrentMonth,
           'bg-primary/10 border-primary': isToday,
@@ -57,7 +61,7 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
       <div className="flex items-center justify-between mb-1">
         <span
           className={cn(
-            'text-sm font-medium',
+            'text-xs sm:text-sm font-medium',
             isToday && 'text-primary font-bold'
           )}
         >
@@ -65,22 +69,22 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
         </span>
       </div>
       
-      <div className="space-y-1">
-        {events.slice(0, 3).map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            variant="compact"
-            onClick={() => handleEventClick(event)}
-          />
-        ))}
-        
-        {events.length > 3 && (
-          <div className="text-xs text-muted-foreground">
-            +{events.length - 3} more
-          </div>
-        )}
-      </div>
+         <div className="space-y-1">
+        {/* This part is for showing up to 3 events in a calendar cell. If there are more, it doesn't show them all. I just used a slice here because I saw it in a tutorial and it worked for me. */}
+           {events.slice(0, 3).map((event, index) => (
+             <div
+               key={event.id}
+               onClick={e => {
+                 e.stopPropagation();
+                 handleEventClick(event);
+               }}
+               className="cursor-pointer rounded px-1 py-0.5 text-xs bg-accent hover:bg-primary/20 transition-colors truncate"
+               title={event.title}
+             >
+               {event.title}
+             </div>
+           ))}
+         </div>
     </div>
   );
 };

@@ -1,7 +1,9 @@
+{/* This is the week view. It shows the days for the current week and the events for each day. I used a map to build the week and just filter the events for each day. */}
 import React from 'react';
-import { useCalendar } from '@/hooks/useCalendar';
+import { useCalendarContext } from '@/hooks/useCalendarContext';
 import { useEvents } from '@/hooks/useEvents';
 import { CalendarCell } from './CalendarCell';
+import { CalendarActionContext } from '@/components/layout/RootLayout';
 import { startOfWeek, endOfWeek, eachDayOfInterval, format } from 'date-fns';
 import type { Event } from '@/types/event';
 import type { CalendarDay } from '@/types/calendar';
@@ -16,7 +18,12 @@ export const WeekView: React.FC<WeekViewProps> = ({
   onEventClick,
 }) => {
   const { events } = useEvents();
-  const { currentDate, isDateToday } = useCalendar(events);
+  const { currentDate, isDateToday } = useCalendarContext();
+  const contextHandlers = React.useContext(CalendarActionContext);
+
+  // Use context handlers if provided, otherwise use props
+  const finalOnDateClick = contextHandlers.onDateClick || onDateClick;
+  const finalOnEventClick = contextHandlers.onEventClick || onEventClick;
 
   // Get the current week's days
   const weekStart = startOfWeek(currentDate);
@@ -67,8 +74,8 @@ export const WeekView: React.FC<WeekViewProps> = ({
               isCurrentMonth={day.isCurrentMonth}
               isToday={day.isToday}
               events={day.events}
-              onDateClick={onDateClick}
-              onEventClick={onEventClick}
+              onDateClick={finalOnDateClick}
+              onEventClick={finalOnEventClick}
             />
           ))}
         </div>

@@ -1,3 +1,4 @@
+{/* This is the event card. It shows the event info and you can click it to open the modal. I tried to make it look nice with some classes and colors. */}
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Card } from '@/components/ui/card';
@@ -18,7 +19,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   variant = 'default',
   onClick,
 }) => {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { setNodeRef, transform, isDragging } = useDraggable({
     id: event.id,
     data: event,
   });
@@ -37,26 +38,27 @@ export const EventCard: React.FC<EventCardProps> = ({
     return colors[category?.toLowerCase() || ''] || 'bg-gray-500';
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('EventCard clicked:', event.title);
+    onClick();
+  };
+
   if (variant === 'compact') {
     return (
       <div
         ref={setNodeRef}
         style={style}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClick();
-        }}
+        onClick={handleClick}
         className={cn(
-          "group relative px-2 py-1 rounded text-xs border-l-4 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer",
+          "group relative px-2 py-1 rounded text-xs border-l-4 bg-primary/5 hover:bg-primary/20 hover:shadow-sm transition-all cursor-pointer border",
           {
             'opacity-50 shadow-sm': isDragging,
           },
           event.color ? `border-l-[${event.color}]` : `border-l-[${getCategoryColor(event.category)}]`
         )}
-        {...attributes}
-        {...listeners}
       >
-        <div className="truncate font-medium">{event.title}</div>
+                <div className="truncate font-medium">{event.title}</div>
         {event.startTime && (
           <div className="text-[10px] text-muted-foreground">{formatTime(event.startTime)}</div>
         )}
@@ -69,16 +71,14 @@ export const EventCard: React.FC<EventCardProps> = ({
       <Card
         ref={setNodeRef}
         style={style}
-        onClick={onClick}
+        onClick={handleClick}
         className={cn(
-          "group p-4 cursor-pointer hover:shadow-md transition-all border-l-4",
+          "group p-4 cursor-pointer hover:shadow-lg hover:bg-accent/50 transition-all border-l-4 border",
           {
             'opacity-50 shadow-lg': isDragging,
           },
           event.color ? `border-l-[${event.color}]` : `border-l-[${getCategoryColor(event.category)}]`
         )}
-        {...attributes}
-        {...listeners}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -126,20 +126,18 @@ export const EventCard: React.FC<EventCardProps> = ({
     );
   }
 
-  // Default variant
+  {/* Default variant */}
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(
-        "group p-3 cursor-pointer hover:shadow-md transition-all",
+        "group p-3 cursor-pointer hover:shadow-md hover:bg-accent/30 transition-all border",
         {
           'opacity-50 shadow-lg': isDragging,
         }
       )}
-      {...attributes}
-      {...listeners}
     >
       <div className="flex items-start gap-2">
         <div className={cn("w-2 h-2 rounded-full mt-1.5 flex-shrink-0", 
