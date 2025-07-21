@@ -35,12 +35,11 @@ export const useDragDrop = (): UseDragDropReturn => {
 
 
     const dropTargetId = event.over.id as string;
-    const dateMatch = dropTargetId.match(/calendar-cell-(.+)/);
+    let dateMatch = dropTargetId.match(/calendar-cell-(.+)/);
     
     if (dateMatch && dateMatch[1]) {
       const newDateString = dateMatch[1];
       const newDate = new Date(newDateString);
-      
       
       if (formatDate(newDate) !== activeEvent.date) {
         onEventMove(activeEvent.id, newDate);

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { CalendarProvider } from './contexts/CalendarContext';
 import { RootLayout } from './components/layout/RootLayout';
 import { CalendarLayout } from './components/layout/CalendarLayout';
@@ -10,13 +10,16 @@ import { EventsPage } from './pages/EventsPage';
 import { NewEventPage } from './pages/NewEventPage';
 import { EditEventPage } from './pages/EditEventPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { EventCard } from './components/events/EventCard';
 import { useEvents } from './hooks/useEvents';
 import { useDragDrop } from './hooks/useDragDrop';
 
+// This is the main app component. I set up all the routing here and also the drag and drop context so events can be dragged around in the calendar. I put DndContext at a high level so it works everywhere.
 function App() {
   const { updateEvent } = useEvents();
 
   const {
+    activeEvent,
     handleDragStart,
     handleDragEnd,
     handleDragCancel,
@@ -53,6 +56,16 @@ function App() {
             
             <Route path="/settings" element={<RootLayout><SettingsPage /></RootLayout>} />
           </Routes>
+          
+          <DragOverlay>
+            {activeEvent ? (
+              <EventCard
+                event={activeEvent}
+                variant="default"
+                onClick={() => {}}
+              />
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </CalendarProvider>
     </BrowserRouter>

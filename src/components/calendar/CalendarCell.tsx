@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
-import { EventCard } from '../events/EventCard';
 import type { Event } from '@/types/event';
 import { formatDate } from '@/utils/dateUtils';
 
@@ -35,12 +34,8 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
   };
 
   const handleEventClick = (event: Event) => {
-    console.log('CalendarCell handleEventClick called with:', event.title);
     if (onEventClick) {
-      console.log('CalendarCell calling onEventClick');
       onEventClick(event);
-    } else {
-      console.log('CalendarCell: no onEventClick handler provided');
     }
   };
 
@@ -52,7 +47,7 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
         {
           'bg-muted/50 text-muted-foreground': !isCurrentMonth,
           'bg-primary/10 border-primary': isToday,
-          'bg-accent/50': isOver,
+          'bg-accent/50 ring-2 ring-primary': isOver,
           'hover:bg-muted/30': isCurrentMonth && !isToday,
         }
       )}
@@ -71,7 +66,7 @@ export const CalendarCell: React.FC<CalendarCellProps> = ({
       
          <div className="space-y-1">
         {/* This part is for showing up to 3 events in a calendar cell. If there are more, it doesn't show them all. I just used a slice here because I saw it in a tutorial and it worked for me. */}
-           {events.slice(0, 3).map((event, index) => (
+           {events.slice(0, 3).map((event) => (
              <div
                key={event.id}
                onClick={e => {

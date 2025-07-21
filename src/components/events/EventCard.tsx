@@ -40,7 +40,6 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('EventCard clicked:', event.title);
     onClick();
   };
 
