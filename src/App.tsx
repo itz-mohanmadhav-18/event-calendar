@@ -35,7 +35,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/event-calendar">
       <CalendarProvider>
         <DndContext
           onDragStart={handleDragStart}
@@ -45,7 +45,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/calendar/month" replace />} />
             
-            <Route path="/" element={<RootLayout><CalendarLayout><MonthView /></CalendarLayout></RootLayout>} />
             <Route path="/calendar/month" element={<RootLayout><CalendarLayout><MonthView /></CalendarLayout></RootLayout>} />
             <Route path="/calendar/week" element={<RootLayout><CalendarLayout><WeekView /></CalendarLayout></RootLayout>} />
             <Route path="/calendar/day" element={<RootLayout><CalendarLayout><DayView /></CalendarLayout></RootLayout>} />
