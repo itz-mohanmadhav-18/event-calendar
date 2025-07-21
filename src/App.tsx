@@ -14,7 +14,7 @@ import { EventCard } from './components/events/EventCard';
 import { useEvents } from './hooks/useEvents';
 import { useDragDrop } from './hooks/useDragDrop';
 
-// This is the main app component. I set up all the routing here and also the drag and drop context so events can be dragged around in the calendar. I put DndContext at a high level so it works everywhere.
+{/* Main app with routing and drag-and-drop functionality */}
 function App() {
   const { updateEvent } = useEvents();
 
@@ -30,7 +30,7 @@ function App() {
       const { formatDate } = await import('./utils/dateUtils');
       await updateEvent(eventId, { date: formatDate(newDate) });
     } catch (error) {
-      console.error('Failed to move event:', error);
+      // Silently fail - drag operation will revert
     }
   };
 
@@ -39,6 +39,7 @@ function App() {
   return (
     <BrowserRouter basename={basename}>
       <CalendarProvider>
+        {/* Global drag and drop context for moving events */}
         <DndContext
           onDragStart={handleDragStart}
           onDragEnd={(event) => handleDragEnd(event, handleEventMove)}
@@ -47,10 +48,12 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/calendar/month" replace />} />
             
+            {/* Calendar views */}
             <Route path="/calendar/month" element={<RootLayout><CalendarLayout><MonthView /></CalendarLayout></RootLayout>} />
             <Route path="/calendar/week" element={<RootLayout><CalendarLayout><WeekView /></CalendarLayout></RootLayout>} />
             <Route path="/calendar/day" element={<RootLayout><CalendarLayout><DayView /></CalendarLayout></RootLayout>} />
             
+            {/* Event management pages */}
             <Route path="/events" element={<RootLayout><EventsPage /></RootLayout>} />
             <Route path="/events/new" element={<RootLayout><NewEventPage /></RootLayout>} />
             <Route path="/events/:eventId/edit" element={<RootLayout><EditEventPage /></RootLayout>} />
@@ -58,6 +61,7 @@ function App() {
             <Route path="/settings" element={<RootLayout><SettingsPage /></RootLayout>} />
           </Routes>
           
+          {/* Visual feedback during drag operations */}
           <DragOverlay>
             {activeEvent ? (
               <EventCard

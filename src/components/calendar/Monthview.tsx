@@ -1,4 +1,4 @@
-{/* This is the month view. It uses the CalendarGrid to show all the days for the current month. I used context to get the handlers because it seemed easier than passing them down everywhere. */}
+{/* Month view component that displays the calendar grid for the current month */}
 import React from 'react';
 import { CalendarGrid } from './CalendarGrid';
 import { useCalendarContext } from '@/hooks/useCalendarContext';
@@ -17,20 +17,20 @@ export const MonthView: React.FC<MonthViewProps> = ({
   const { calendarDays } = useCalendarContext();
   const contextHandlers = React.useContext(CalendarActionContext);
 
-  console.log('MonthView - contextHandlers:', contextHandlers);
-  console.log('MonthView - contextHandlers.onEventClick exists:', !!contextHandlers.onEventClick);
-
-  // Use context handlers if provided, otherwise use props
+  // Prefer context handlers over props for better component integration
   const finalOnDateClick = contextHandlers.onDateClick || onDateClick;
   const finalOnEventClick = contextHandlers.onEventClick || onEventClick;
-
-  console.log('MonthView - finalOnEventClick exists:', !!finalOnEventClick);
 
   return (
     <div className="w-full">
       <CalendarGrid
         calendarDays={calendarDays}
         onDateClick={finalOnDateClick}
+        onEventClick={finalOnEventClick}
+      />
+    </div>
+  );
+};
         onEventClick={finalOnEventClick}
       />
     </div>

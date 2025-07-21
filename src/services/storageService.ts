@@ -8,7 +8,7 @@ export class StorageService {
       const storedEvents = localStorage.getItem(EVENTS_STORAGE_KEY);
       return storedEvents ? JSON.parse(storedEvents) : [];
     } catch (error) {
-      console.error('Error loading events from storage:', error);
+      // Silently return empty array if storage is corrupted
       return [];
     }
   }
@@ -17,8 +17,7 @@ export class StorageService {
     try {
       localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events));
     } catch (error) {
-      console.error('Error saving events to storage:', error);
-      throw error;
+      throw new Error('Failed to save events to storage');
     }
   }
 

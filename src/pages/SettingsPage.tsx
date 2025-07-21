@@ -39,7 +39,6 @@ export const SettingsPage: React.FC = () => {
         await storageService.clearAllEvents();
         alert('All calendar data has been cleared.');
       } catch (error) {
-        console.error('Failed to clear data:', error);
         alert('Failed to clear data. Please try again.');
       } finally {
         setIsClearing(false);
@@ -62,7 +61,6 @@ export const SettingsPage: React.FC = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to export data:', error);
       alert('Failed to export data. Please try again.');
     }
   };
@@ -85,7 +83,6 @@ export const SettingsPage: React.FC = () => {
           alert('Invalid file format. Please select a valid calendar export file.');
         }
       } catch (error) {
-        console.error('Failed to import data:', error);
         alert('Failed to import data. Please check the file format and try again.');
       }
     };
@@ -187,6 +184,9 @@ export const SettingsPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+};
     </div>
   );
 };

@@ -16,7 +16,7 @@ export const NewEventPage: React.FC = () => {
       await createEvent(eventData);
       navigate('/events');
     } catch (error) {
-      console.error('Failed to create event:', error);
+      // Error handling is done in the hook, just reset loading state
     } finally {
       setIsSubmitting(false);
     }

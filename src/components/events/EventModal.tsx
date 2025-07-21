@@ -30,9 +30,6 @@ export const EventModal: React.FC<EventModalProps> = ({
   onDelete,
   isSubmitting,
 }) => {
-  console.log('EventModal render - isOpen:', isOpen, 'event:', event?.title);
-  console.log('EventModal render - isOpen:', isOpen, 'event:', event?.title);
-  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">

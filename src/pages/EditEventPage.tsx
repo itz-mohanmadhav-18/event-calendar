@@ -29,7 +29,7 @@ export const EditEventPage: React.FC = () => {
       await updateEvent(eventId, eventData);
       navigate('/events');
     } catch (error) {
-      console.error('Failed to update event:', error);
+      // Error is handled by the hook
     } finally {
       setIsSubmitting(false);
     }
@@ -43,7 +43,7 @@ export const EditEventPage: React.FC = () => {
       await deleteEvent(eventId);
       navigate('/events');
     } catch (error) {
-      console.error('Failed to delete event:', error);
+      // Error is handled by the hook
     } finally {
       setIsSubmitting(false);
     }

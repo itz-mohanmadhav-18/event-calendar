@@ -12,7 +12,7 @@ import { Plus } from 'lucide-react';
 import { formatDate } from '@/utils/dateUtils';
 import type { Event, CreateEventData, UpdateEventData } from '@/types/event';
 
-{/* Create a context to pass down the calendar event handlers */}
+{/* Context for passing calendar event handlers to child components */}
 export const CalendarActionContext = React.createContext<{
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: Event) => void;
@@ -36,7 +36,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
     setIsModalOpen(true);
   }, []);
 
-  {/* Memoize the context value to prevent unnecessary re-renders */}
+  {/* Prevent unnecessary re-renders by memoizing context value */}
   const contextValue = React.useMemo(() => ({
     onDateClick: handleDateClick,
     onEventClick: handleEventClick
@@ -44,7 +44,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
 
   const handleCreateEvent = async (eventData: CreateEventData) => {
     try {
-      // If a date was clicked, use that date
+      // Use clicked date if available
       const finalEventData = selectedDate 
         ? { ...eventData, date: formatDate(selectedDate) }
         : eventData;
@@ -53,7 +53,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       setIsModalOpen(false);
       setSelectedDate(null);
     } catch (error) {
-      console.error('Failed to create event:', error);
+      // Error is handled by the hook
     }
   };
 
@@ -64,7 +64,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         setIsModalOpen(false);
         setSelectedEvent(null);
       } catch (error) {
-        console.error('Failed to update event:', error);
+        // Error is handled by the hook
       }
     }
   };
@@ -76,7 +76,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         setIsModalOpen(false);
         setSelectedEvent(null);
       } catch (error) {
-        console.error('Failed to delete event:', error);
+        // Error is handled by the hook
       }
     }
   };
@@ -87,7 +87,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-2 md:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
-            {/* Sidebar - Hidden on mobile, shown in collapsed view */}
+            {/* Desktop sidebar with calendar tools */}
             <div className="hidden lg:block lg:col-span-1 space-y-4">
               <Sidebar />
               
@@ -131,7 +131,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
               </Card>
             </div>
 
-            {/* Mobile Menu Button - Show on small screens */}
+            {/* Mobile quick actions */}
             <div className="lg:hidden mb-4">
               <Card>
                 <CardContent className="p-4">
@@ -152,7 +152,7 @@ export const RootLayout: React.FC<{ children: React.ReactNode }> = ({ children }
               </Card>
             </div>
 
-            {/* Main Content */}
+            {/* Main calendar content */}
             <div className="lg:col-span-3">
               <CalendarActionContext.Provider value={contextValue}>
                 {children}

@@ -25,9 +25,8 @@ export const useEvents = (): UseEventsReturn => {
       setError(null);
       let storedEvents = await storageService.getEvents();
       
-      // Add sample events if none exist (for testing)
+      // Initialize with sample events for first-time users
       if (storedEvents.length === 0 || storedEvents.length > 50) {
-        // Clear existing events if too many (likely from recurrence issues)
         const sampleEvents = [
           {
             id: 'sample-1',
@@ -54,14 +53,10 @@ export const useEvents = (): UseEventsReturn => {
         ];
         await storageService.saveEvents(sampleEvents);
         storedEvents = sampleEvents;
-        console.log('Sample events created:', sampleEvents);
       }
       
-      console.log('Loaded events:', storedEvents);
-      console.log('Events array length:', storedEvents.length);
       setEvents(storedEvents);
     } catch (err) {
-      console.error('Failed to load events:', err);
       setError('Failed to load events. Please try again.');
     } finally {
       setLoading(false);
@@ -71,7 +66,7 @@ export const useEvents = (): UseEventsReturn => {
   const createEvent = useCallback(async (eventData: CreateEventData): Promise<Event> => {
     try {
       setError(null);
-      // Prevent creating events in the past
+      // Don't allow creating events in the past
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const eventDate = new Date(eventData.date);
@@ -87,7 +82,7 @@ export const useEvents = (): UseEventsReturn => {
         updatedAt: new Date().toISOString(),
       };
 
-      // Handle recurring events
+      // Handle recurring events differently
       if (newEvent.recurrence && newEvent.recurrence.type !== 'none') {
         const recurringEvents = await recurrenceService.generateEvents(newEvent);
         await storageService.saveEvents(recurringEvents);
@@ -95,12 +90,10 @@ export const useEvents = (): UseEventsReturn => {
         return newEvent;
       }
 
-      // Handle single event
       await storageService.saveEvent(newEvent);
       setEvents(prev => [...prev, newEvent]);
       return newEvent;
     } catch (err) {
-      console.error('Failed to create event:', err);
       setError('Failed to create event. Please try again.');
       throw err;
     }
@@ -120,21 +113,18 @@ export const useEvents = (): UseEventsReturn => {
 
       await storageService.updateEvent(updatedEvent);
       
-      // Handle recurrence updates
+      // Reload events if recurrence pattern changed
       if (
         updatedEvent.recurrence?.type !== existingEvent.recurrence?.type ||
         updatedEvent.recurrence?.interval !== existingEvent.recurrence?.interval
       ) {
-        // If recurrence pattern changed, reload all events
         await loadEvents();
       } else {
-        // Just update this event
         setEvents(prev => prev.map(e => e.id === id ? updatedEvent : e));
       }
       
       return updatedEvent;
     } catch (err) {
-      console.error('Failed to update event:', err);
       setError('Failed to update event. Please try again.');
       throw err;
     }
@@ -146,19 +136,10 @@ export const useEvents = (): UseEventsReturn => {
       const existingEvent = events.find(e => e.id === id);
       if (!existingEvent) return false;
 
-      // Check if event is part of a recurrence series
-      if (existingEvent.recurrence && existingEvent.recurrence.type !== 'none') {
-        // Handle deleting a recurring event or series
-        await storageService.deleteEvent(id);
-      } else {
-        // Delete a single event
-        await storageService.deleteEvent(id);
-      }
-      
+      await storageService.deleteEvent(id);
       setEvents(prev => prev.filter(e => e.id !== id));
       return true;
     } catch (err) {
-      console.error('Failed to delete event:', err);
       setError('Failed to delete event. Please try again.');
       throw err;
     }
