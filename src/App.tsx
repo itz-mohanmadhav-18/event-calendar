@@ -34,8 +34,12 @@ function App() {
     }
   };
 
+  const basename = import.meta.env.PROD && window.location.hostname.includes('github.io') 
+    ? '/event-calendar' 
+    : '';
+
   return (
-    <BrowserRouter basename="/event-calendar">
+    <BrowserRouter basename={basename}>
       <CalendarProvider>
         <DndContext
           onDragStart={handleDragStart}
