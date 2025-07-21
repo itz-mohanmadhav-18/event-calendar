@@ -34,9 +34,7 @@ function App() {
     }
   };
 
-  const basename = import.meta.env.PROD && window.location.hostname.includes('github.io') 
-    ? '/event-calendar' 
-    : '';
+  const basename = import.meta.env.BASE_URL.slice(0, -1);
 
   return (
     <BrowserRouter basename={basename}>
