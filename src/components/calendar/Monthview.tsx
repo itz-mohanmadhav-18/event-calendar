@@ -31,8 +31,3 @@ export const MonthView: React.FC<MonthViewProps> = ({
     </div>
   );
 };
-        onEventClick={finalOnEventClick}
-      />
-    </div>
-  );
-};
